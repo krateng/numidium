@@ -1,4 +1,3 @@
-.workdir
 userdir
-mods_staging
-test_playthrough
+!/mods_staging/example_musicreplacer
+!/mods_staging/*
