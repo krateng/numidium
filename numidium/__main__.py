@@ -14,7 +14,7 @@ GAMES = {
 def load_config(inputf):
 	with open(inputf) as inputfd:
 		data = yaml.safe_load(inputfd)
-	
+
 	return data
 
 def load_loadorder(inputf):
@@ -22,12 +22,12 @@ def load_loadorder(inputf):
 		lines = inputfd.readlines()
 		lines = [l[:-1] for l in lines if l]
 		instructions = [l.split(" ",1) for l in lines]
-		
+
 	return instructions
-		
-		
-	
-	
+
+
+
+
 def create_fs(instructions,config):
 
 	workdir = pth.join(config['working_folder'],"numidium_workdir")
@@ -45,22 +45,22 @@ def create_fs(instructions,config):
 		elif inst == 'MOD':
 			modfolder = pth.join(config['mod_folder'],value)
 			layers.append(modfolder)
-			
+
 	cmd = [
 		"mount","-t","overlay","overlay",
 		"-o",f"lowerdir={':'.join(reversed(layers))},upperdir={config['dynamic_folder']},workdir={workdir}",
 		# gamefolder will be overloaded
 		gamefolder
 	]
-	
+
 	os.makedirs(config['dynamic_folder'],exist_ok=True)
 	os.makedirs(workdir,exist_ok=True)
-	
-	
+
+
 	print(" ".join(cmd))
 	subprocess.run(cmd)
-	
-	
+
+
 if __name__ == '__main__':
 	_, inputf = sys.argv
 	configfile = pth.abspath(CONFIG_FILE)
@@ -69,6 +69,6 @@ if __name__ == '__main__':
 	for k in config:
 		# replace relative paths
 		config[k] = pth.normpath(pth.join(configfile_context,config[k]))
-	
+
 	instructions = load_loadorder(inputf)
 	create_fs(instructions,config)
