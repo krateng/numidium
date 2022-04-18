@@ -13,7 +13,8 @@ GAMES = {
 
 PATHS = {
 	'configfile':configfile,
-	'configfile_context':configfile_context
+	'configfile_context':configfile_context,
+	'games_folder': os.path.expanduser("~/.steam/steam/SteamApps/common")
 }
 
 with open(configfile) as configfiled:
