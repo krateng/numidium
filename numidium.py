@@ -4,7 +4,6 @@ import sys
 import yaml
 from os import path as pth
 
-WORKDIR = os.path.join(os.getcwd(),".workdir")
 CONFIG_FILE = "./numidium.yml"
 
 GAMES = {
@@ -31,6 +30,8 @@ def load_loadorder(inputf):
 	
 def create_fs(instructions,config):
 
+	workdir = pth.join(config['working_folder'],"numidium_workdir")
+
 	layers = []
 	have_game = False
 	for inst,value in instructions:
@@ -47,13 +48,13 @@ def create_fs(instructions,config):
 			
 	cmd = [
 		"mount","-t","overlay","overlay",
-		"-o",f"lowerdir={':'.join(reversed(layers))},upperdir={config['dynamic_folder']},workdir={WORKDIR}",
+		"-o",f"lowerdir={':'.join(reversed(layers))},upperdir={config['dynamic_folder']},workdir={workdir}",
 		# gamefolder will be overloaded
 		gamefolder
 	]
 	
 	os.makedirs(config['dynamic_folder'],exist_ok=True)
-	os.makedirs(WORKDIR,exist_ok=True)
+	os.makedirs(workdir,exist_ok=True)
 	
 	
 	print(" ".join(cmd))
