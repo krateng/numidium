@@ -20,10 +20,12 @@ if __name__ == '__main__':
 		info = brass.load_brassfile(brassfile)
 
 		gamefolder = os.path.join(config.PATHS['games_folder'],info['gamefolder'])
+
+		# unmount if already mounted
 		filesystem.umount(gamefolder)
-
+		# build layers, return folders
 		layers = list(build.build_layers(info['instructions']))
-
+		# create layered fs
 		filesystem.mount(gamefolder,layers,config.PATHS['dynamic_folder'])
 
 	if action == 'disband':

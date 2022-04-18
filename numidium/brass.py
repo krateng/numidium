@@ -6,7 +6,7 @@ from . import instructionclasses
 
 
 
-# loads instruction dicts from brassfile, also specifically extracts game (which remains also an instruction)
+# loads instruction objects from brassfile, also specifically extracts game folder (which remains also an instruction)
 def load_brassfile(inputf):
 	gamefolder = None
 	instructionlist = []

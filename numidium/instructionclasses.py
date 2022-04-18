@@ -23,6 +23,13 @@ class Instruction:
 	def init(self,argsstring):
 		self.argsstring = argsstring
 
+	def identify_with_context(self,context):
+		m = hashlib.sha256()
+		if self.stack_dependent:
+			m.update(bytes(str(self.identify()),'utf-8'))
+		m.update(bytes(str(context),'utf-8'))
+		return m.hexdigest()
+
 	def identify(self):
 		m = hashlib.sha256()
 		m.update(bytes(self.__class__.__name__,'utf-8'))

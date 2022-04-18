@@ -7,13 +7,16 @@ from doreah.io import col
 from . import config
 
 
-def console_output_instruction(i):
-	hash = col['yellow'](i.identify())
+def console_output_instruction(i,contextual_identifier=None):
+	hash = col['yellow'](contextual_identifier or i.identify())
 	desc = col['lightblue'](i)
 
 	print(f"\t[{hash}] {desc}")
 
-def build_layers(instructions,brassfilecontext=os.getcwd()):
+
+# for each instruction object, check if we we have a cached layer, otherwise build new
+# yield paths to folders
+def build_layers(instructions):
 	print("Building layers")
 	existing_layers = {}
 	layerdir = config.PATHS['layers']
@@ -21,29 +24,19 @@ def build_layers(instructions,brassfilecontext=os.getcwd()):
 		if not f.endswith('.layer'): continue
 
 		with open(os.path.join(layerdir,f),'r') as fd:
-			existing_layers.append(yaml.safe_load(fd))
+			existing_layers[f.split('.')[0]] = yaml.safe_load(fd)
 
-	contextual_identifier = ''
+	contextual_identifier = 0
 	for i in instructions:
 		identifier = i.identify()
-		if i.stack_dependent:
-			contextual_identifier = contextual_identifier + str(identifier)
-		else:
-			contextual_identifier = str(identifier)
-		console_output_instruction(i)
+		contextual_identifier = i.identify_with_context(contextual_identifier)
+		console_output_instruction(i,contextual_identifier)
 		if contextual_identifier in existing_layers:
 			print(f"\t\tCached, reusing...")
+			yield existing_layers[contextual_identifier]['path']
 		else:
 			print(f"\t\tBuilding...")
-			layer = create_layer(i,brassfilecontext=brassfilecontext)
-			yield layer
-
-
-
-
-# takes an instruction object, returns a ready folder to use
-def create_layer(i,brassfilecontext=os.getcwd()):
-	return i.get_folder()
-
-
-	return os.path.join(brassfilecontext,args[0])
+			path = i.get_folder()
+			with open(os.path.join(layerdir,contextual_identifier + '.layer'),'w') as fd:
+				yaml.dump({'path':path},fd)
+			yield path
