@@ -2,13 +2,15 @@ import yaml
 import os
 
 from . import config
+from . import instructionclasses
 
 
 
 # loads instruction dicts from brassfile, also specifically extracts game (which remains also an instruction)
 def load_brassfile(inputf):
 	gamefolder = None
-	instructions = []
+	instructionlist = []
+	brassfile_context = os.path.dirname(os.path.abspath(inputf))
 	with open(inputf) as inputfd:
 
 		for line in inputfd:
@@ -16,21 +18,21 @@ def load_brassfile(inputf):
 			if not line: continue # empty lines
 			if line.startswith('#'): continue # comments
 
-			instruction,*args = line.split(" ")
+			instruction,argsstring = line.split(" ",1)
 
 			# leave instructions untouched, but return gamefolder consistently
 			if instruction in ['GAME','GAMEFOLDER']:
 				assert gamefolder is None
 				if instruction == 'GAME':
-					gamefolder = config.GAMES[args[0]]
+					gamefolder = config.GAMES[argsstring]
 				else:
-					gamefolder = args[0]
+					gamefolder = argsstring
 
-			instructions.append({'instruction':instruction,'args':args})
+			instructionlist.append(instructionclasses.instruction_types[instruction](argsstring,brassfile_context=brassfile_context))
 
 	assert gamefolder is not None
 
 	return {
 		'gamefolder':gamefolder,
-		'instructions':instructions
+		'instructions':instructionlist
 	}

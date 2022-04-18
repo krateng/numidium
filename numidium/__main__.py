@@ -6,22 +6,23 @@ from . import config
 from . import filesystem
 from . import build
 
+from doreah.io import col
+
 
 
 if __name__ == '__main__':
 
 	action, *args = sys.argv[1:]
 	if action == 'deploy':
-		#filesystem.umount()
-		brassfile = os.path.abspath(args[0])
-		brassfile_context = os.path.dirname(brassfile)
+
+		brassfile = args[0]
+
 		info = brass.load_brassfile(brassfile)
 
 		gamefolder = os.path.join(config.PATHS['games_folder'],info['gamefolder'])
+		filesystem.umount(gamefolder)
 
-		layers = []
-		for i in info['instructions']:
-			layers.append(build.create_layer(i,brassfilecontext=brassfile_context))
+		layers = list(build.build_layers(info['instructions']))
 
 		filesystem.mount(gamefolder,layers,config.PATHS['dynamic_folder'])
 
