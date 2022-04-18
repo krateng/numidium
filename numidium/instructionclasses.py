@@ -48,6 +48,13 @@ class Instruction:
 		return self.build()
 
 
+
+class InstructionWithArgs(Instruction):
+
+	def init(self,argsstring):
+		args = [part.split('=') for part in argsstring.split(',')]
+		self.args = {k:v for k,v in args}
+
 class FOLDER(Instruction):
 
 	stack_dependent = False
@@ -74,3 +81,15 @@ class GAME(GAMEFOLDER):
 	def init(self,gamename):
 		gamepath = config.GAMES[gamename]
 		super().init(gamepath)
+
+class MODARCHIVE(Instruction):
+	# archive that just has the Data contents in it
+	def init(self,archive):
+		self.archivepath = archive
+
+
+class FOMOD(InstructionWithArgs):
+	pass
+
+class INCLUDE(Instruction):
+	pass

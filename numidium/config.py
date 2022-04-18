@@ -8,6 +8,7 @@ configfile_context = os.path.dirname(configfile)
 
 GAMES = {
 	'skyrim64':"Skyrim Special Edition",
+	'skyrim32':"Skyrim",
 	'oblivion':"Oblivion"
 }
 
