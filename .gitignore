@@ -1,5 +1,5 @@
 userdir
 .numidium
 !/mods_staging/example_musicreplacer
-!/mods_staging/*
+/mods_staging/*
 *.pyc

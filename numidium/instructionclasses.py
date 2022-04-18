@@ -1,5 +1,6 @@
 import hashlib
 import os
+import subprocess as sp
 
 from . import config
 
@@ -25,9 +26,9 @@ class Instruction:
 
 	def identify_with_context(self,context):
 		m = hashlib.sha256()
+		m.update(bytes(str(self.identify()),'utf-8'))
 		if self.stack_dependent:
-			m.update(bytes(str(self.identify()),'utf-8'))
-		m.update(bytes(str(context),'utf-8'))
+			m.update(bytes(str(context),'utf-8'))
 		return m.hexdigest()
 
 	def identify(self):
@@ -38,7 +39,7 @@ class Instruction:
 		return m.hexdigest()
 
 	def identifying_information(self):
-		return [self.argsstring]
+		return [self.rawargsstring]
 
 	def __repr__(self):
 		return f"{self.__class__.__name__} {self.rawargsstring}"
@@ -49,11 +50,16 @@ class Instruction:
 
 class FOLDER(Instruction):
 
+	stack_dependent = False
+
 	def init(self,path):
 		self.path = self.get_abs_path(path)
 
 	def identifying_information(self):
-		return self.path
+		return [
+			self.path,
+			sp.run(['ls','-lhR',self.path],stdout=sp.PIPE).stdout
+		]
 
 	def get_folder(self):
 		return self.path
