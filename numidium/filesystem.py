@@ -5,13 +5,20 @@ from . import config
 
 
 # creates the mount on the game directory with specified layers
-def mount(gamedir,readlayers,writelayer,dry_run=False):
+def mount(targetdir,readlayers,writelayer,dry_run=False):
+
+	dirs = []
+	dirs.append(f"lowerdir={':'.join(reversed(readlayers))}")
+	# read only system needs neither of these two
+	if writelayer is not None:
+		dirs.append(f"upperdir={writelayer}")
+		dirs.append(f"workdir={config.PATHS['workdir']}")
 
 	cmd = [
 		"mount","-t","overlay","overlay",
-		"-o",f"lowerdir={':'.join(reversed(readlayers))},upperdir={writelayer},workdir={config.PATHS['workdir']}",
+		"-o",','.join(dirs),
 		# gamefolder will be overloaded
-		gamedir
+		targetdir
 	]
 
 	if dry_run:
@@ -20,8 +27,8 @@ def mount(gamedir,readlayers,writelayer,dry_run=False):
 		subprocess.run(cmd)
 
 # unmounts game directory if it is a mount point
-def umount(gamedir):
-	if pth.ismount(gamedir):
-		print(gamedir,"is currently managed by Numidium, unmounting...")
-		cmd = ["umount",gamedir]
+def umount(targetdir):
+	if pth.ismount(targetdir):
+		print(targetdir,"is currently managed by Numidium, unmounting...")
+		cmd = ["umount",targetdir]
 		subprocess.run(cmd)

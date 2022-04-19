@@ -133,7 +133,7 @@ class INCLUDE(Instruction):
 		layers = list(build.build_layers(self.brassfile.instructions[1:]))
 		tmpfolder = os.path.join(config.PATHS['staging'],self.modlist)
 		os.makedirs(tmpfolder,exist_ok=True)
-		filesystem.mount(tmpfolder,layers,config.PATHS['runtime_changes'])
+		filesystem.mount(tmpfolder,layers,writelayer=None)
 		return tmpfolder
 
 	def arguments(self):
