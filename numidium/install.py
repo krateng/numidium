@@ -32,7 +32,7 @@ def install(modfolder):
 						choices=[option.name for option in group],
 					),
 				]
-				answers = inquirer.prompt(questions)
+				answers = inquirer.prompt(questions)[group.name]
 
 			elif group.type is pyfomod.GroupType.EXACTLYONE:
 				questions = [
@@ -41,7 +41,7 @@ def install(modfolder):
 						choices=[option.name for option in group],
 					),
 				]
-				answers = inquirer.prompt(questions)
+				answers = [inquirer.prompt(questions)[group.name]]
 
 			elif group.type is pyfomod.GroupType.ALL:
 				print(group.name)
@@ -50,15 +50,16 @@ def install(modfolder):
 					print(o.description.replace('\r\n\n','\n'))
 				print()
 				input("Enter to Proceed")
-				answers = {option.name:option.name for option in group}
+				answers = [option.name for option in group]
 
 			else:
 				print(col['red'](f"Installer does not yet know how to handle {group.type}!"))
 				continue
 
 			for opt in group:
-				if opt.name in answers.values():
+				if opt.name in answers:
 					selections.append(opt)
+					
 
 	files = i.files()
 	print("The following files will be installed:")
