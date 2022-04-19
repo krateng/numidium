@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
 		brassfile.save()
 
-	if action == 'deploy':
+	if action == 'deploy' or action == 'test':
 
 		modlist = args[0]
 		brassfile = brass.BrassModlist(modlist)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 		# build layers, return folders
 		layers = list(build.build_layers(brassfile.instructions))
 		# create layered fs
-		filesystem.mount(gamefolder,layers,config.PATHS['runtime_changes'])
+		filesystem.mount(gamefolder,layers,config.PATHS['runtime_changes'],dry_run=(action == 'test'))
 
 	if action == 'disband':
 		filesystem.umount()
