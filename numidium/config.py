@@ -56,6 +56,7 @@ for configfile in config_file_options:
 PATHS['workdir'] = os.path.join(PATHS['application_data'],'workdir')
 PATHS['layers'] = os.path.join(PATHS['application_data'],'layers')
 PATHS['runtime_changes'] = os.path.join(PATHS['application_data'],'runtime_layers')
+PATHS['staging'] = os.path.join(PATHS['application_data'],'staging')
 
 
 for k in ['application_data','mods','modlists','workdir','layers','runtime_changes']:

@@ -3,6 +3,9 @@ import os
 import subprocess as sp
 
 from . import config
+from . import brass
+from . import build
+from . import filesystem
 
 from doreah.io import col
 
@@ -121,8 +124,26 @@ class FOMOD(Mod):
 
 
 class INCLUDE(Instruction):
+	def __init__(self,modlist):
+		self.modlist = modlist
+		self.brassfile = brass.BrassModlist(self.modlist)
+
 	def build(self):
-		return ""
+
+		layers = list(build.build_layers(self.brassfile.instructions[1:]))
+		tmpfolder = os.path.join(config.PATHS['staging'],self.modlist)
+		os.makedirs(tmpfolder,exist_ok=True)
+		filesystem.mount(tmpfolder,layers,config.PATHS['runtime_changes'])
+		return tmpfolder
+
+	def arguments(self):
+		return (self.modlist,),{}
+
+	def identifying_information(self):
+		return [
+			self.modlist,
+			*[i.identifying_information() for i in self.brassfile.instructions]
+		]
 
 
 class GAME(GenericFolder):

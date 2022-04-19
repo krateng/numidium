@@ -2,7 +2,7 @@
 
 Numidium is an Elder Scrolls Mod Manager for Linux. I felt it's somewhat silly to go through the trouble of running Windows Mod Managers via Proton only for them to then go through extra trouble to make things on Windows work that already are much easier on Linux.
 
-Numidium is inspired by LXC and Docker and uses the super-simple and fast OverlayFS. OverlayFS can simply put any number of layers on top of the base game diretory and then mount the result on the very same path, making the process completely invisible to Steam or the game itself. Even something like SKSE can simply be overlaid over the game directory without affecting it in any way.
+Numidium uses OverlayFS, which can simply put any number of layers on top of the base game diretory and then mount the result on the very same path, making the process completely invisible to Steam or the game itself. Even something like SKSE can simply be overlaid over the game directory without affecting it in any way.
 
 Numidium is not a mod manager in the same sense that e.g. Vortex is. Instead of an interacive window with the ability to edit your load order, mod configuration and so on on the fly, Numidium is centered around the concept of having your modlist stored as repeatable instructions that can then be deployed at any time. For this, Numidium uses so-called Brassfiles. Their syntax should be familiar to anyone who has used Docker:
 
