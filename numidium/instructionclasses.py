@@ -86,7 +86,7 @@ class FOLDER(Instruction):
 
 class GAMEFOLDER(FOLDER):
 	def init(self,path):
-		fullgamepath = os.path.join(config.PATHS['games_folder'],path)
+		fullgamepath = os.path.join(config.PATHS['games'],path)
 		super().init(fullgamepath)
 
 

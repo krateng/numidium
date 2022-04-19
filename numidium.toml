@@ -1,0 +1,4 @@
+[paths]
+
+games = "/media/krateng/Games2/Steam/steamapps/common/"
+application_data = "./.numidium"
