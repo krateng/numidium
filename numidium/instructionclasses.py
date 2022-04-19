@@ -112,10 +112,6 @@ class FOMOD(InstructionWithArgs):
 
 
 	def build(self):
-
-		from . import install
-
-		install.install(self.fomod)
 		return ""
 
 

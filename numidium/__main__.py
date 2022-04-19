@@ -5,6 +5,7 @@ from . import brass
 from . import config
 from . import filesystem
 from . import build
+from . import install
 
 from doreah.io import col
 
@@ -13,6 +14,16 @@ from doreah.io import col
 if __name__ == '__main__':
 
 	action, *args = sys.argv[1:]
+	if action == 'folders':
+		for k in config.PATHS:
+			print(col['magenta'](k) + " " + config.PATHS[k])
+	if action == 'configure':
+
+		mod = args[0]
+		modfolder = os.path.join(config.PATHS['mods'],mod)
+		install.install(modfolder)
+
+
 	if action == 'deploy':
 
 		brassfile = args[0]

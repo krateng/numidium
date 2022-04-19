@@ -8,17 +8,21 @@ from doreah.io import col
 import pyfomod
 
 
-def install(fomod):
+def install(modfolder):
+
+	fomod = pyfomod.parse(modfolder)
+
 	i = pyfomod.Installer(fomod)
 	selections = []
 	while True:
 		page = i.next(selections)
-		selections = []
 		if page is None: break
 
 		print()
 		print(col['yellow'](page.name))
 		print()
+
+		selections = []
 		for group in page:
 
 			if group.type is pyfomod.GroupType.ANY:
@@ -39,7 +43,7 @@ def install(fomod):
 				]
 				answers = inquirer.prompt(questions)
 
-			else:
+			elif group.type is pyfomod.GroupType.ALL:
 				print(group.name)
 				print()
 				for o in group:
@@ -49,11 +53,15 @@ def install(fomod):
 				answers = {option.name:option.name for option in group}
 
 			else:
-				print(group.type)
+				print(col['red'](f"Installer does not yet know how to handle {group.type}!"))
+				continue
 
 			for opt in group:
 				if opt.name in answers.values():
 					selections.append(opt)
 
-
-	print()
+	files = i.files()
+	print("The following files will be installed:")
+	for k in files:
+		print("\t\t" + files[k])
+	return files
