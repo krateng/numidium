@@ -46,7 +46,8 @@ class Instruction:
 		return [self.args,self.kwargs]
 
 	def __repr__(self):
-		return f"{self.__class__.__name__} {self.args} {self.kwargs}"
+		args, kwargs = self.arguments()
+		return f"{self.__class__.__name__} {args} {kwargs}"
 
 	def get_folder(self):
 		return self.build()
@@ -69,6 +70,9 @@ class Mod(OnFilesystem):
 	def get_abs_path(self):
 		return os.path.join(config.PATHS['mods'],self.name)
 
+	def arguments(self):
+		return (self.name,),{}
+
 # existing folder that will be used without any alteration
 # generic path
 class GenericFolder(OnFilesystem):
@@ -80,6 +84,9 @@ class GenericFolder(OnFilesystem):
 			self.path,
 			sp.run(['ls','-lhR',self.path],stdout=sp.PIPE).stdout
 		]
+
+	def build(self):
+		return self.path
 
 # mod without logic, just the data folder inside
 class MODFOLDER(Mod):
@@ -119,5 +126,9 @@ class INCLUDE(Instruction):
 
 class GAME(GenericFolder):
 	def __init__(self,gamename):
+		self.gamename = gamename
 		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES[gamename]['path'])
 		super().__init__(fullgamepath)
+
+	def arguments(self):
+		return (self.gamename,),{}
