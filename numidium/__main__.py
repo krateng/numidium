@@ -5,7 +5,8 @@ from . import brass
 from . import config
 from . import filesystem
 from . import build
-from . import install
+from . import stage_mod
+from . import instructionclasses
 
 from doreah.io import col
 
@@ -14,15 +15,26 @@ from doreah.io import col
 if __name__ == '__main__':
 
 	action, *args = sys.argv[1:]
+
+	# print information about used paths
 	if action == 'folders':
 		for k in config.PATHS:
 			print(col['magenta'](k) + " " + config.PATHS[k])
-	if action == 'configure':
 
-		mod = args[0]
+	# 'install' a mod to a modlist
+	if action == 'install':
+
+		mod,modlist = args
+
 		modfolder = os.path.join(config.PATHS['mods'],mod)
-		install.install(modfolder)
 
+		brassfile = brass.BrassModlist(modlist)
+
+		options,files = stage_mod.create_config(modfolder)
+		print(options)
+		brassfile.add_instruction(instructionclasses.FOMOD(mod,options=options))
+
+		brassfile.save()
 
 	if action == 'deploy':
 

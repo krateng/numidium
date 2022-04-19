@@ -1,4 +1,4 @@
 GAME oblivion
 FOLDER ./mods_staging/example_musicreplacer
+FOMOD folder=./mods_staging/skyhud, version=3, wat=wut
 INCLUDE ./mods_staging/bettergraphics
-FOMOD archive=./mods_staging/bettergraphics, version=3, wat=wut

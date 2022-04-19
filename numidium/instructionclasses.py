@@ -2,11 +2,11 @@ import hashlib
 import os
 import subprocess as sp
 
-import pyfomod
-
 from . import config
 
 from doreah.io import col
+
+import pyfomod
 
 instruction_types = {}
 
@@ -17,16 +17,16 @@ class Instruction:
 	def __init_subclass__(cls):
 		instruction_types[cls.__name__] = cls
 
-	def __init__(self,argsstring,brassfile_context=os.getcwd()):
-		self.rawargsstring = argsstring
-		self.brassfile_context = brassfile_context
-		self.init(argsstring)
+	def __init__(self,*args,**kwargs):
+		self.args = args
+		self.kwargs = kwargs
+
+	# what to serialize into brass file
+	def arguments(self):
+		return self.args,self.kwargs
 
 	def get_abs_path(self,path):
 		return os.path.normpath(os.path.join(self.brassfile_context,path))
-
-	def init(self,argsstring):
-		self.argsstring = argsstring
 
 	def identify_with_context(self,context):
 		m = hashlib.sha256()
@@ -43,36 +43,27 @@ class Instruction:
 		return m.hexdigest()
 
 	def identifying_information(self):
-		return [self.rawargsstring]
+		return [self.args,self.kwargs]
 
 	def __repr__(self):
-		return f"{self.__class__.__name__} {self.rawargsstring}"
+		return f"{self.__class__.__name__} {self.args} {self.kwargs}"
 
 	def get_folder(self):
 		return self.build()
 
-
-
-class InstructionWithArgs(Instruction):
-
-	def __init__(self,argsstring,brassfile_context=os.getcwd()):
-		self.rawargsstring = argsstring
-		self.brassfile_context = brassfile_context
-
-		args = [part.split('=') for part in argsstring.split(',')]
-		kwargs = {k:v for k,v in args}
-
-		self.init(kwargs)
-
-	def init(self,kwargs):
-		self.kwargs = kwargs
-
-
-class FOLDER(Instruction):
+# abstract class for anything that just means using a preexisting folder
+# on the fs
+class OnFilesystem(Instruction):
 
 	stack_dependent = False
 
-	def init(self,path):
+	def get_abs_path(self):
+		return os.path.join(config.PATHS['mods'],self.name)
+
+# existing folder that will be used without any alteration
+class FOLDER(OnFilesystem):
+
+	def __init__(self,path):
 		self.path = self.get_abs_path(path)
 
 	def identifying_information(self):
@@ -84,26 +75,21 @@ class FOLDER(Instruction):
 	def get_folder(self):
 		return self.path
 
-class GAME(FOLDER):
-	def init(self,gamename):
-		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES['games'][gamename]['path'],path)
-		super().init(gamepath)
-
-class MODARCHIVE(Instruction):
-	# archive that just has the Data contents in it
-	def init(self,archive):
+# existing archive that will be used without any alteration
+class ARCHIVE(OnFilesystem):
+	def __init__(self,archive):
 		self.archivepath = archive
 
+# folder with FOMOD data
+class FOMOD(OnFilesystem):
+	def __init__(self,name,**files):
+		self.name = name
+		self.files = files
 
-class FOMOD(InstructionWithArgs):
-	def init(self,kwargs):
-		if 'folder' in kwargs:
-			self.folder = kwargs['folder']
-		elif 'archive' in kwargs:
-			self.archive = kwargs['archive']
+		self.fomod = pyfomod.parse(self.get_abs_path())
 
-		self.fomod = pyfomod.parse(self.folder)
-
+	def arguments(self):
+		return (self.name,),{**self.files}
 
 	def build(self):
 		return ""
@@ -112,3 +98,9 @@ class FOMOD(InstructionWithArgs):
 class INCLUDE(Instruction):
 	def build(self):
 		return ""
+
+
+class GAME(FOLDER):
+	def __init__(self,gamename):
+		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES['games'][gamename]['path'],path)
+		super().init(gamepath)
