@@ -2,7 +2,11 @@ import hashlib
 import os
 import subprocess as sp
 
+import pyfomod
+
 from . import config
+
+from doreah.io import col
 
 instruction_types = {}
 
@@ -51,9 +55,18 @@ class Instruction:
 
 class InstructionWithArgs(Instruction):
 
-	def init(self,argsstring):
+	def __init__(self,argsstring,brassfile_context=os.getcwd()):
+		self.rawargsstring = argsstring
+		self.brassfile_context = brassfile_context
+
 		args = [part.split('=') for part in argsstring.split(',')]
-		self.args = {k:v for k,v in args}
+		kwargs = {k:v for k,v in args}
+
+		self.init(kwargs)
+
+	def init(self,kwargs):
+		self.kwargs = kwargs
+
 
 class FOLDER(Instruction):
 
@@ -89,7 +102,23 @@ class MODARCHIVE(Instruction):
 
 
 class FOMOD(InstructionWithArgs):
-	pass
+	def init(self,kwargs):
+		if 'folder' in kwargs:
+			self.folder = kwargs['folder']
+		elif 'archive' in kwargs:
+			self.archive = kwargs['archive']
+
+		self.fomod = pyfomod.parse(self.folder)
+
+
+	def build(self):
+
+		from . import install
+
+		install.install(self.fomod)
+		return ""
+
 
 class INCLUDE(Instruction):
-	pass
+	def build(self):
+		return ""

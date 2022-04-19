@@ -7,6 +7,8 @@ from doreah.io import col
 from . import config
 
 
+ALLOW_CACHING = False
+
 def console_output_instruction(i,contextual_identifier=None):
 	hash = col['yellow'](contextual_identifier or i.identify())
 	desc = col['lightblue'](i)
@@ -31,7 +33,7 @@ def build_layers(instructions):
 		identifier = i.identify()
 		contextual_identifier = i.identify_with_context(contextual_identifier)
 		console_output_instruction(i,contextual_identifier)
-		if contextual_identifier in existing_layers:
+		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
 			print(f"\t\tCached, reusing...")
 			yield existing_layers[contextual_identifier]['path']
 		else:

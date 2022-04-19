@@ -3,4 +3,4 @@ userdir
 !/mods_staging/example_musicreplacer
 /mods_staging/*
 *.pyc
-/pyfomod
+/pyfomod*
