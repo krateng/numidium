@@ -38,16 +38,16 @@ if __name__ == '__main__':
 
 	if action == 'deploy':
 
-		brassfile = args[0]
+		modlist = args[0]
+		brassfile = brass.BrassModlist(modlist)
 
-		info = brass.load_brassfile(brassfile)
-
-		gamefolder = os.path.join(config.PATHS['games'],info['gamefolder'])
+		game = brassfile.game
+		gamefolder = os.path.join(config.PATHS['games'],config.GAMES[game]['path'])
 
 		# unmount if already mounted
 		filesystem.umount(gamefolder)
 		# build layers, return folders
-		layers = list(build.build_layers(info['instructions']))
+		layers = list(build.build_layers(brassfile.instructions))
 		# create layered fs
 		filesystem.mount(gamefolder,layers,config.PATHS['runtime_changes'])
 
