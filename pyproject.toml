@@ -1,0 +1,32 @@
+[project]
+name = "numidium"
+version = "0.1.0"
+description = "Skyrim / Oblivion Mod Manager for Linux"
+readme = "./README.md"
+requires-python = ">=3.6"
+license = { file="./LICENSE" }
+authors = [ { name="Johannes Krattenmacher", email="numidium@dev.krateng.ch" } ]
+
+urls.repository = "https://github.com/krateng/numidium"
+urls.documentation = "https://github.com/krateng/numidium"
+urls.homepage = "https://github.com/krateng/numidium"
+
+keywords = ["skyrim","oblivion","mod-manager","modding","overlayfs"]
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+	"Operating System :: OS Independent"
+]
+
+dependencies = [
+	"doreah>=1.9.1, <2",
+	"pyfomod"
+]
+
+
+[project.scripts]
+numidium = "numidium.__main__"
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
