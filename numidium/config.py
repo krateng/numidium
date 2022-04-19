@@ -57,6 +57,6 @@ PATHS['workdir'] = os.path.join(PATHS['application_data'],'workdir')
 PATHS['layers'] = os.path.join(PATHS['application_data'],'layers')
 PATHS['runtime_changes'] = os.path.join(PATHS['application_data'],'runtime_layers')
 
-os.makedirs(PATHS['workdir'],exist_ok=True)
-os.makedirs(PATHS['layers'],exist_ok=True)
-os.makedirs(PATHS['runtime_changes'],exist_ok=True)
+
+for k in ['application_data','mods','modlists','workdir','layers','runtime_changes']:
+	os.makedirs(PATHS[k],exist_ok=True)

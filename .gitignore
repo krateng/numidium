@@ -2,5 +2,6 @@ userdir
 .numidium
 /mods_staging
 /mods
+/modlists
 *.pyc
 /pyfomod*
