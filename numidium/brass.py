@@ -1,8 +1,11 @@
 import yaml
 import os
+import sys
 
 from . import config
 from . import instructionclasses
+
+from doreah.io import col
 
 
 
@@ -15,7 +18,8 @@ class BrassModlist:
 		try:
 			self.load()
 		except FileNotFoundError:
-			pass
+			print(f"Brassfile {col['yellow'](self.file)} could not be found!")
+			sys.exit()
 
 	def load(self):
 		with open(self.file,'r') as fd:

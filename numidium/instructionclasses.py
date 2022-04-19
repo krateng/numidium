@@ -57,14 +57,32 @@ class OnFilesystem(Instruction):
 
 	stack_dependent = False
 
+
+
+
+# any archive or folder that is in the mod folder
+class Mod(OnFilesystem):
+	def __init__(self,name):
+		self.name = name
+		self.path = self.get_abs_path()
+
 	def get_abs_path(self):
 		return os.path.join(config.PATHS['mods'],self.name)
 
 # existing folder that will be used without any alteration
-class FOLDER(OnFilesystem):
-
+# generic path
+class GenericFolder(OnFilesystem):
 	def __init__(self,path):
-		self.path = self.get_abs_path(path)
+		self.path = path
+
+	def identifying_information(self):
+		return [
+			self.path,
+			sp.run(['ls','-lhR',self.path],stdout=sp.PIPE).stdout
+		]
+
+# mod without logic, just the data folder inside
+class MODFOLDER(Mod):
 
 	def identifying_information(self):
 		return [
@@ -76,12 +94,11 @@ class FOLDER(OnFilesystem):
 		return self.path
 
 # existing archive that will be used without any alteration
-class ARCHIVE(OnFilesystem):
-	def __init__(self,archive):
-		self.archivepath = archive
+class ARCHIVE(Mod):
+	pass
 
 # folder with FOMOD data
-class FOMOD(OnFilesystem):
+class FOMOD(Mod):
 	def __init__(self,name,**files):
 		self.name = name
 		self.files = files
@@ -100,7 +117,7 @@ class INCLUDE(Instruction):
 		return ""
 
 
-class GAME(FOLDER):
+class GAME(GenericFolder):
 	def __init__(self,gamename):
-		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES['games'][gamename]['path'],path)
-		super().init(gamepath)
+		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES[gamename]['path'])
+		super().__init__(fullgamepath)
