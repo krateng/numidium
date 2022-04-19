@@ -14,8 +14,9 @@ class Instruction:
 
 	stack_dependent = True #whether this needs to be rebuilt when the below stack has changed
 
-	def __init_subclass__(cls):
-		instruction_types[cls.__name__] = cls
+	def __init_subclass__(cls,abstract=False):
+		if not abstract:
+			instruction_types[cls.__name__] = cls
 
 	def __init__(self,*args,**kwargs):
 		self.args = args
@@ -54,7 +55,7 @@ class Instruction:
 
 # abstract class for anything that just means using a preexisting folder
 # on the fs
-class OnFilesystem(Instruction):
+class OnFilesystem(Instruction,abstract=True):
 
 	stack_dependent = False
 
@@ -62,7 +63,7 @@ class OnFilesystem(Instruction):
 
 
 # any archive or folder that is in the mod folder
-class Mod(OnFilesystem):
+class Mod(OnFilesystem,abstract=True):
 	def __init__(self,name):
 		self.name = name
 		self.path = self.get_abs_path()
@@ -75,7 +76,7 @@ class Mod(OnFilesystem):
 
 # existing folder that will be used without any alteration
 # generic path
-class GenericFolder(OnFilesystem):
+class GenericFolder(OnFilesystem,abstract=True):
 	def __init__(self,path):
 		self.path = path
 
