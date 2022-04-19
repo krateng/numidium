@@ -8,12 +8,13 @@ from doreah.io import col
 import pyfomod
 
 
-def install(modfolder):
+def create_config(modfolder):
 
 	fomod = pyfomod.parse(modfolder)
 
 	i = pyfomod.Installer(fomod)
 	selections = []
+	allanswers = []
 	while True:
 		page = i.next(selections)
 		if page is None: break
@@ -59,10 +60,13 @@ def install(modfolder):
 			for opt in group:
 				if opt.name in answers:
 					selections.append(opt)
-					
+
+			allanswers += answers
+
 
 	files = i.files()
 	print("The following files will be installed:")
 	for k in files:
 		print("\t\t" + files[k])
-	return files
+
+	return allanswers,files
