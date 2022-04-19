@@ -13,10 +13,18 @@ config_file_options = [
 configfile = os.path.abspath(CONFIG_FILE)
 configfile_context = os.path.dirname(configfile)
 
+
+# game settings
 GAMES = {
-	'skyrim64':"Skyrim Special Edition",
-	'skyrim32':"Skyrim",
-	'oblivion':"Oblivion"
+	'skyrim64':{
+		'path':"Skyrim Special Edition"
+	},
+	'skyrim32':{
+		'path':"Skyrim"
+	},
+	'oblivion':{
+		'path':"Oblivion"
+	}
 }
 
 PATHS = {
@@ -37,6 +45,11 @@ for configfile in config_file_options:
 		for k,v in data.get('paths',{}).items():
 			# replace relative paths
 			PATHS[k] = os.path.normpath(os.path.join(configfile_context,os.path.expanduser(v)))
+
+		for g in GAMES:
+			# save as is, the instruction class will automatically resolve relative paths
+			GAMES[g].update(data.get('games',{}).get(g,{}))
+
 		break
 
 # dependent paths

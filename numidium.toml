@@ -1,5 +1,12 @@
 [paths]
 
-games = "/media/krateng/Games2/Steam/steamapps/common/"
+# these can be relative to this file
+games = "/media/krateng/Games/Steam/steamapps/common/"
 application_data = "./.numidium"
 mods = "./mods"
+modlists = "./modlists"
+
+[games.skyrim32]
+# custom path can be defined if they are not in the default game directory
+# can also be relative to the default directory
+path = "/media/krateng/Games2/Steam/steamapps/common/Skyrim"

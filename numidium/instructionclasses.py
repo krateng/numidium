@@ -84,15 +84,9 @@ class FOLDER(Instruction):
 	def get_folder(self):
 		return self.path
 
-class GAMEFOLDER(FOLDER):
-	def init(self,path):
-		fullgamepath = os.path.join(config.PATHS['games'],path)
-		super().init(fullgamepath)
-
-
-class GAME(GAMEFOLDER):
+class GAME(FOLDER):
 	def init(self,gamename):
-		gamepath = config.GAMES[gamename]
+		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES['games'][gamename]['path'],path)
 		super().init(gamepath)
 
 class MODARCHIVE(Instruction):
