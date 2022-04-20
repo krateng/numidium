@@ -1,6 +1,7 @@
 import os
 import yaml
 import hashlib
+import shutil
 
 from doreah.io import col
 
@@ -35,17 +36,36 @@ def build_layers(instructions):
 		console_output_instruction(i,contextual_identifier)
 		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
 			print(f"Reusing from cache")
-			path = existing_layers[contextual_identifier]['path']
+			layer = existing_layers[contextual_identifier]
 		else:
-			path = i.get_folder()
+			layer = i.get_layer()
 			with open(os.path.join(layerdir,contextual_identifier + '.layer'),'w') as fd:
-				yaml.dump({'path':path},fd)
+				yaml.dump(layer,fd)
 
-		if path is not None:
-			yield path
-		else:
+
+		if layer['type'] == 'skip':
 			print(f"No layer returned, skipping")
+		elif layer['type'] == 'existing_path':
+			yield layer['path']
+		elif layer['type'] == 'file_map':
+			yield create_staging_layer(layer['files'],layer['srcfolder'],contextual_identifier)
+
 
 	print()
 	print("All layers built")
 	print()
+
+
+
+def create_staging_layer(filesdict,srcfolder,identifier):
+	newdir = os.path.join(config.PATHS['staging'],str(identifier))
+	os.makedirs(newdir,exist_ok=True)
+
+	for f in filesdict:
+		srcfile = os.path.join(srcfolder,f)
+		targetfile = os.path.join(newdir,filesdict[f])
+		print("Copying",col['orange'](f),"to",col['magenta'](filesdict[f]))
+		os.makedirs(os.path.dirname(targetfile),exist_ok=True)
+		shutil.copyfile(srcfile,targetfile)
+
+	return newdir

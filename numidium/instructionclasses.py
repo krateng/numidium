@@ -7,6 +7,7 @@ from . import config
 from . import brass
 from . import build
 from . import filesystem
+from . import stage_mod
 
 from doreah.io import col
 
@@ -54,9 +55,6 @@ class Instruction:
 		args, kwargs = self.arguments()
 		return f"{self.__class__.__name__} {args} {kwargs}"
 
-	def get_folder(self):
-		return self.build()
-
 # abstract class for anything that just means using a preexisting folder
 # on the fs
 class OnFilesystem(Instruction,abstract=True):
@@ -75,12 +73,12 @@ class OnFilesystem(Instruction,abstract=True):
 		else:
 			return []
 
-	def get_folder(self):
+	def get_layer(self):
 		if self.is_present():
-			return self.get_abs_path()
+			return {'type':'existing_path','path':self.get_abs_path()}
 		else:
 			print(f"{self.get_abs_path()} does not exist")
-			return None
+			return {'type':'skip'}
 
 
 
@@ -131,7 +129,24 @@ class FOMOD(Mod):
 		return (self.name,),{'options':"&".join(quote(o) for o in self.options)}
 
 	def build(self):
-		return ""
+		return stage_mod.apply_config(self.get_abs_path(),self.options)
+
+	def identifying_information(self):
+		if self.is_present():
+			return [
+				self.get_abs_path(),
+				sp.run(['ls','-lhR',self.get_abs_path()],stdout=sp.PIPE).stdout,
+				self.options
+			]
+		else:
+			return []
+
+	def get_layer(self):
+		if self.is_present():
+			return  {'type':'file_map','files':self.build(),'srcfolder':self.get_abs_path()}
+		else:
+			print(f"{self.get_abs_path()} does not exist")
+			return {'type':'skip'}
 
 
 class INCLUDE(Instruction):
@@ -146,6 +161,9 @@ class INCLUDE(Instruction):
 		os.makedirs(tmpfolder,exist_ok=True)
 		filesystem.mount(tmpfolder,layers,writelayer=None)
 		return tmpfolder
+
+	def get_layer(self):
+		return {'type':'existing_path','path':self.build()}
 
 	def arguments(self):
 		return (self.modlist,),{}

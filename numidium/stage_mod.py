@@ -3,6 +3,8 @@
 ## the whole point is that the brassfile is the source of truth and leads to a repeatable end state
 ## there should be no interactive user choice
 
+import pathlib
+
 import inquirer
 from doreah.io import col
 import pyfomod
@@ -64,9 +66,32 @@ def create_config(modfolder):
 			allanswers += answers
 
 
-	files = i.files()
-	print("The following files will be installed:")
-	for k in files:
-		print("\t\t" + files[k])
+#	files = i.files()
+#	print("The following files will be installed:")
+#	for k in files:
+#		print("\t\t" + files[k])
 
 	return allanswers,files
+
+def apply_config(modfolder,answers):
+
+	fomod = pyfomod.parse(modfolder)
+
+	i = pyfomod.Installer(fomod)
+
+	selections = []
+	while True:
+		page = i.next(selections)
+		selections = []
+		if page is None: break
+
+		for group in page:
+			for opt in group:
+				if opt.name in answers:
+					selections.append(opt)
+
+
+	return {
+		pathlib.PureWindowsPath(k).as_posix():pathlib.PureWindowsPath(v).as_posix()
+		for k,v in i.files().items()
+	}
