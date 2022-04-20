@@ -31,9 +31,6 @@ class Instruction:
 	def arguments(self):
 		return self.args,self.kwargs
 
-	def get_abs_path(self,path):
-		return os.path.normpath(os.path.join(self.brassfile_context,path))
-
 	def identify_with_context(self,context):
 		m = hashlib.sha256()
 		m.update(bytes(str(self.identify()),'utf-8'))
@@ -55,15 +52,30 @@ class Instruction:
 		args, kwargs = self.arguments()
 		return f"{self.__class__.__name__} {args} {kwargs}"
 
-# abstract class for anything that just means using a preexisting folder
-# on the fs
-class OnFilesystem(Instruction,abstract=True):
 
-	stack_dependent = False
+# everything that corresponds to a folder on the fs, whether ready-built or not
+class OnFilesystem(Instruction,abstract=True):
+	def __init__(self,path):
+		self.path = path
 
 	def is_present(self):
 		return os.path.exists(self.get_abs_path())
 
+	def get_abs_path(self):
+		return self.path
+
+	def arguments(self):
+		return (self.path,),{}
+
+
+# everything that doesn't depend on the stack below it
+class Independent(Instruction,abstract=True):
+
+	stack_dependent = False
+
+
+# everything that has no options, is just a fixed folder
+class Static(Independent,abstract=True):
 	def identifying_information(self):
 		if self.is_present():
 			return [
@@ -77,17 +89,16 @@ class OnFilesystem(Instruction,abstract=True):
 		if self.is_present():
 			return {'type':'existing_path','path':self.get_abs_path()}
 		else:
-			print(f"{self.get_abs_path()} does not exist")
+			#print(f"{self.get_abs_path()} does not exist")
 			return {'type':'skip'}
 
 
 
 
 # any archive or folder that is in the mod folder
-class Mod(OnFilesystem,abstract=True):
+class NumidiumManaged(OnFilesystem,abstract=True):
 	def __init__(self,name):
 		self.name = name
-		self.path = self.get_abs_path()
 
 	def get_abs_path(self):
 		return os.path.join(config.PATHS['mods'],self.name)
@@ -95,35 +106,25 @@ class Mod(OnFilesystem,abstract=True):
 	def arguments(self):
 		return (self.name,),{}
 
-# existing folder that will be used without any alteration
-# generic path
-class GenericFolder(OnFilesystem,abstract=True):
-	def __init__(self,path):
-		self.path = path
 
-	def get_abs_path(self):
-		return self.path
-
-
-# mod without logic, just the data folder inside
-class MODFOLDER(Mod):
-
+# arbitrary folder on the fs, not relative to numidium dir
+class FOLDER(OnFilesystem,Static):
 	pass
 
 
-# existing archive that will be used without any alteration
-class ARCHIVE(Mod):
-	pass
-
-# folder with FOMOD data
-class FOMOD(Mod):
-	def __init__(self,name,options=None,options_deserialized=None):
+# modfolder
+class MOD(NumidiumManaged,Independent):
+	def __init__(self,name,options=None,options_deserialized=[]):
 		self.name = name
 		if options:
 			options_deserialized = [unquote(o) for o in options.split("&")]
 		self.options = options_deserialized
 
-		self.fomod = pyfomod.parse(self.get_abs_path())
+		try:
+			self.fomod = pyfomod.parse(self.get_abs_path())
+			self.is_fomod = True
+		except:
+			self.is_fomod = False
 
 	def arguments(self):
 		return (self.name,),{'options':"&".join(quote(o) for o in self.options)}
@@ -143,9 +144,12 @@ class FOMOD(Mod):
 
 	def get_layer(self):
 		if self.is_present():
-			return  {'type':'file_map','files':self.build(),'srcfolder':self.get_abs_path()}
+			if self.is_fomod:
+				return  {'type':'file_map','files':self.build(),'srcfolder':self.get_abs_path()}
+			else:
+				return {'type':'existing_path','path':self.get_abs_path()}
 		else:
-			print(f"{self.get_abs_path()} does not exist")
+			#print(f"{self.get_abs_path()} does not exist")
 			return {'type':'skip'}
 
 
@@ -175,7 +179,7 @@ class INCLUDE(Instruction):
 		]
 
 
-class GAME(GenericFolder):
+class GAME(OnFilesystem,Static):
 	def __init__(self,gamename):
 		self.gamename = gamename
 		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES[gamename]['path'])

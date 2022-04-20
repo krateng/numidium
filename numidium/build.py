@@ -35,7 +35,7 @@ def build_layers(instructions):
 		contextual_identifier = i.identify_with_context(contextual_identifier)
 		console_output_instruction(i,contextual_identifier)
 		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
-			print(f"Reusing from cache")
+			print(f"\t\tReusing from cache")
 			layer = existing_layers[contextual_identifier]
 		else:
 			layer = i.get_layer()
@@ -44,16 +44,15 @@ def build_layers(instructions):
 
 
 		if layer['type'] == 'skip':
-			print(f"No layer returned, skipping")
+			print(f"\t\tNo layer returned, skipping")
 		elif layer['type'] == 'existing_path':
+			print("\t\tReturned existing static layer")
 			yield layer['path']
 		elif layer['type'] == 'file_map':
+			print("\t\tBuilt layer")
 			yield create_staging_layer(layer['files'],layer['srcfolder'],contextual_identifier)
 
 
-	print()
-	print("All layers built")
-	print()
 
 
 
@@ -64,7 +63,7 @@ def create_staging_layer(filesdict,srcfolder,identifier):
 	for f in filesdict:
 		srcfile = os.path.join(srcfolder,f)
 		targetfile = os.path.join(newdir,filesdict[f])
-		print("Copying",col['orange'](f),"to",col['magenta'](filesdict[f]))
+		print("\t\tCopying",col['orange'](f),"to",col['magenta'](filesdict[f]))
 		os.makedirs(os.path.dirname(targetfile),exist_ok=True)
 		shutil.copyfile(srcfile,targetfile)
 
