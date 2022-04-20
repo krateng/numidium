@@ -34,7 +34,7 @@ def build_layers(instructions):
 		contextual_identifier = i.identify_with_context(contextual_identifier)
 		console_output_instruction(i,contextual_identifier)
 		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
-			print(col['lawngreen'](f"   ☑Reusing from cache"))
+			print(col['lawngreen'](f"   ☑ Reusing from cache"))
 			layer = existing_layers[contextual_identifier]
 		else:
 			layer = i.get_layer()
@@ -43,7 +43,7 @@ def build_layers(instructions):
 
 
 		if layer['type'] == 'skip':
-			print(col['orange'](f"   ☒No layer returned, skipping"))
+			print(col['orange'](f"   ☒ No layer returned, skipping"))
 		elif layer['type'] == 'existing_path':
 			print(col['lawngreen']("   ☑ Returned existing static layer"))
 			yield layer['path']

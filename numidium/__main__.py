@@ -26,9 +26,10 @@ if __name__ == '__main__':
 
 		mod,modlist = args
 
-		modfolder = os.path.join(config.PATHS['mods'],mod)
-
 		brassfile = brass.BrassModlist(modlist)
+		modfolder = os.path.join(config.PATHS['mods'],config.GAMES[brassfile.game]['modpath'],mod)
+
+
 
 		options,files = stage_mod.create_config(modfolder)
 		print(options)
@@ -42,7 +43,7 @@ if __name__ == '__main__':
 		brassfile = brass.BrassModlist(modlist)
 
 		game = brassfile.game
-		gamefolder = os.path.join(config.PATHS['games'],config.GAMES[game]['path'])
+		gamefolder = os.path.join(config.PATHS['games'],config.GAMES[game]['gamepath'])
 
 		# unmount if already mounted
 		filesystem.umount(gamefolder)

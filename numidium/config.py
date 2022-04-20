@@ -17,13 +17,16 @@ configfile_context = os.path.dirname(configfile)
 # game settings
 GAMES = {
 	'skyrim64':{
-		'path':"Skyrim Special Edition"
+		'gamepath':"Skyrim Special Edition",
+		'modpath':'skyrim64'
 	},
 	'skyrim32':{
-		'path':"Skyrim"
+		'gamepath':"Skyrim",
+		'modpath':'skyrim32'
 	},
 	'oblivion':{
-		'path':"Oblivion"
+		'gamepath':"Oblivion",
+		'modpath':'oblivion'
 	}
 }
 

@@ -101,7 +101,7 @@ class NumidiumManaged(OnFilesystem,abstract=True):
 		self.name = name
 
 	def get_abs_path(self):
-		return os.path.join(config.PATHS['mods'],self.name)
+		return os.path.join(config.PATHS['mods'],config.GAMES[self.game]['modpath'],self.name)
 
 	def arguments(self):
 		return (self.name,),{}
@@ -182,7 +182,7 @@ class INCLUDE(Instruction):
 class GAME(OnFilesystem,Static):
 	def __init__(self,gamename):
 		self.gamename = gamename
-		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES[gamename]['path'])
+		fullgamepath = os.path.join(config.PATHS['games'],config.GAMES[gamename]['gamepath'])
 		super().__init__(fullgamepath)
 
 	def arguments(self):

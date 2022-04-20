@@ -8,5 +8,6 @@ modlists = "./modlists"
 
 [games.skyrim32]
 # custom path can be defined if they are not in the default game directory
-# can also be relative to the default directory
-path = "/mnt/me/moregames/Steam/steamapps/common/Skyrim"
+# can also be relative to the default directories above (games for gamepath and mods for modpath)
+gamepath = "/mnt/me/moregames/Steam/steamapps/common/Skyrim"
+modpath = "skyrim_se_mods"

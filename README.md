@@ -10,7 +10,7 @@ Numidium is not a mod manager in the same sense that e.g. Vortex is. Instead of 
 GAME skyrim64
 INCLUDE base_fixes
 INCLUDE graphics_enhancers
-MOD immersive_sweetrolls
+MOD immersive_sweetrolls,options=16KTextures&ExtraIcing
 MOD blackpink_main_menu_music_replacer
 ```
 

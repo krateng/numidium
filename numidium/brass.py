@@ -39,9 +39,10 @@ class BrassModlist:
 				args = [part for part in allargs if not "=" in part]
 				kwargs = dict(part.split("=") for part in allargs if "=" in part)
 
-				self.instructions.append(
-					instructionclasses.instruction_types[instruction](*args,**kwargs)
-				)
+				i = instructionclasses.instruction_types[instruction](*args,**kwargs)
+				i.game = self.game
+
+				self.instructions.append(i)
 
 			if self.game is None:
 				print("Not a valid brassfile, missing Game!")
