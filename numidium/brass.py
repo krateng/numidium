@@ -55,7 +55,7 @@ class BrassModlist:
 					*['='.join([k,str(v)]) for k,v in kwargs.items()]
 				])
 				fd.write(i.__class__.__name__ + " " + argsstring)
-			fd.write("\n")
+				fd.write("\n")
 
 	def add_instruction(self,i):
 		self.instructions.append(i)

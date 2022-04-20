@@ -1,6 +1,7 @@
 import hashlib
 import os
 import subprocess as sp
+from urllib.parse import quote, unquote
 
 from . import config
 from . import brass
@@ -62,6 +63,25 @@ class OnFilesystem(Instruction,abstract=True):
 
 	stack_dependent = False
 
+	def is_present(self):
+		return os.path.exists(self.get_abs_path())
+
+	def identifying_information(self):
+		if self.is_present():
+			return [
+				self.get_abs_path(),
+				sp.run(['ls','-lhR',self.get_abs_path()],stdout=sp.PIPE).stdout
+			]
+		else:
+			return []
+
+	def get_folder(self):
+		if self.is_present():
+			return self.get_abs_path()
+		else:
+			print(f"{self.get_abs_path()} does not exist")
+			return None
+
 
 
 
@@ -83,26 +103,15 @@ class GenericFolder(OnFilesystem,abstract=True):
 	def __init__(self,path):
 		self.path = path
 
-	def identifying_information(self):
-		return [
-			self.path,
-			sp.run(['ls','-lhR',self.path],stdout=sp.PIPE).stdout
-		]
-
-	def build(self):
+	def get_abs_path(self):
 		return self.path
+
 
 # mod without logic, just the data folder inside
 class MODFOLDER(Mod):
 
-	def identifying_information(self):
-		return [
-			self.path,
-			sp.run(['ls','-lhR',self.path],stdout=sp.PIPE).stdout
-		]
+	pass
 
-	def get_folder(self):
-		return self.path
 
 # existing archive that will be used without any alteration
 class ARCHIVE(Mod):
@@ -110,14 +119,16 @@ class ARCHIVE(Mod):
 
 # folder with FOMOD data
 class FOMOD(Mod):
-	def __init__(self,name,**files):
+	def __init__(self,name,options=None,options_deserialized=None):
 		self.name = name
-		self.files = files
+		if options:
+			options_deserialized = [unquote(o) for o in options.split("&")]
+		self.options = options_deserialized
 
 		self.fomod = pyfomod.parse(self.get_abs_path())
 
 	def arguments(self):
-		return (self.name,),{**self.files}
+		return (self.name,),{'options':"&".join(quote(o) for o in self.options)}
 
 	def build(self):
 		return ""

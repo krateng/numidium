@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
 		options,files = stage_mod.create_config(modfolder)
 		print(options)
-		brassfile.add_instruction(instructionclasses.FOMOD(mod,options=options))
+		brassfile.add_instruction(instructionclasses.FOMOD(mod,options_deserialized=options))
 
 		brassfile.save()
 

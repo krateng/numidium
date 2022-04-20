@@ -34,11 +34,18 @@ def build_layers(instructions):
 		contextual_identifier = i.identify_with_context(contextual_identifier)
 		console_output_instruction(i,contextual_identifier)
 		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
-			print(f"\t\tCached, reusing...")
-			yield existing_layers[contextual_identifier]['path']
+			print(f"Reusing from cache")
+			path = existing_layers[contextual_identifier]['path']
 		else:
-			print(f"\t\tBuilding...")
 			path = i.get_folder()
 			with open(os.path.join(layerdir,contextual_identifier + '.layer'),'w') as fd:
 				yaml.dump({'path':path},fd)
+
+		if path is not None:
 			yield path
+		else:
+			print(f"No layer returned, skipping")
+
+	print()
+	print("All layers built")
+	print()
