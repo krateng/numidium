@@ -24,11 +24,11 @@ def mount(targetdir,readlayers,writelayer,dry_run=False):
 	if dry_run:
 		print(cmd)
 	else:
-		subprocess.run(cmd)
+		subprocess.run(['pkexec'] + cmd)
 
 # unmounts game directory if it is a mount point
 def umount(targetdir):
 	if pth.ismount(targetdir):
 		print(targetdir,"is currently managed by Numidium, unmounting...")
 		cmd = ["umount",targetdir]
-		subprocess.run(cmd)
+		subprocess.run(['pkexec'] + cmd)

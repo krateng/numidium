@@ -53,4 +53,11 @@ if __name__ == '__main__':
 		filesystem.mount(gamefolder,layers,config.PATHS['runtime_changes'],dry_run=(action == 'test'))
 
 	if action == 'disband':
-		filesystem.umount()
+		if args:
+			games = args
+		else:
+			games = config.GAMES.keys()
+
+		for game in games:
+			gamefolder = os.path.join(config.PATHS['games'],config.GAMES[game]['gamepath'])
+			filesystem.umount(gamefolder)
