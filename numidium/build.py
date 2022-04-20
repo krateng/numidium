@@ -14,13 +14,12 @@ def console_output_instruction(i,contextual_identifier=None):
 	hash = col['yellow'](contextual_identifier or i.identify())
 	desc = col['lightblue'](i)
 
-	print(f"\t[{hash}] {desc}")
+	print(f"   [{hash}] {desc}")
 
 
 # for each instruction object, check if we we have a cached layer, otherwise build new
 # yield paths to folders
 def build_layers(instructions):
-	print("Building layers")
 	existing_layers = {}
 	layerdir = config.PATHS['layers']
 	for f in os.listdir(layerdir):
@@ -35,7 +34,7 @@ def build_layers(instructions):
 		contextual_identifier = i.identify_with_context(contextual_identifier)
 		console_output_instruction(i,contextual_identifier)
 		if (contextual_identifier in existing_layers) and ALLOW_CACHING:
-			print(f"\t\tReusing from cache")
+			print(col['lawngreen'](f"   ☑Reusing from cache"))
 			layer = existing_layers[contextual_identifier]
 		else:
 			layer = i.get_layer()
@@ -44,13 +43,14 @@ def build_layers(instructions):
 
 
 		if layer['type'] == 'skip':
-			print(f"\t\tNo layer returned, skipping")
+			print(col['orange'](f"   ☒No layer returned, skipping"))
 		elif layer['type'] == 'existing_path':
-			print("\t\tReturned existing static layer")
+			print(col['lawngreen']("   ☑ Returned existing static layer"))
 			yield layer['path']
 		elif layer['type'] == 'file_map':
-			print("\t\tBuilt layer")
-			yield create_staging_layer(layer['files'],layer['srcfolder'],contextual_identifier)
+			l = create_staging_layer(layer['files'],layer['srcfolder'],contextual_identifier)
+			print(col['lawngreen']("   ☑ Built layer"))
+			yield l
 
 
 
@@ -63,7 +63,7 @@ def create_staging_layer(filesdict,srcfolder,identifier):
 	for f in filesdict:
 		srcfile = os.path.join(srcfolder,f)
 		targetfile = os.path.join(newdir,filesdict[f])
-		print("\t\tCopying",col['orange'](f),"to",col['magenta'](filesdict[f]))
+		print("     Copying",col['orange'](f),"to",col['magenta'](filesdict[f]))
 		os.makedirs(os.path.dirname(targetfile),exist_ok=True)
 		shutil.copyfile(srcfile,targetfile)
 
