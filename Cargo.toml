@@ -1,0 +1,12 @@
+[package]
+name = "numidium_rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+vfs = "0.13.0"
+libmount = "0.1.15"
+ctrlc = "3.5.2"
+anyhow = "1.0.102"
+walkdir = "2.5.0"
+colored = "3.1.1"
