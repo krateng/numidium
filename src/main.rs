@@ -1,19 +1,18 @@
-use std::path::{Path, PathBuf};
-use std::error::Error;
-use std::io::{stdout, Write};
-use std::sync::Arc;
-use std::sync::mpsc::channel;
+use clap::{Parser, Subcommand};
 use colored::Colorize;
-use clap::{Parser, Subcommand, ValueEnum};
-use entities::{SkyrimInstall, Modlist, StagedMod};
+use common::ConsoleDisplay;
+use entities::{Modlist, SkyrimInstall};
+use std::io::{stdout, Write};
+use std::path::PathBuf;
+use std::sync::mpsc::channel;
+use std::sync::Arc;
 
 mod filesystem;
 mod plugins;
 mod entities;
+mod common;
 
 static SKYRIM_STEAM_ID: u32 = 489830;
-
-static MODLIST: &str = "immersive";
 
 #[derive(Parser)]
 struct Args {
@@ -55,52 +54,62 @@ fn main() {
 
 fn run() -> anyhow::Result<()> {
     let skyrim_install = find_skyrim_install()?;
-
     let arc_skyrim_install = Arc::new(skyrim_install);
 
-    let modlist = Modlist {
-        install: Arc::clone(&arc_skyrim_install),
-        identifier: MODLIST.parse()?,
-    };
+    let op = Args::parse().operation;
 
-    println!("Mounting modlist {}...", &modlist.name().red().bold().underline());
+    match op {
+        Operation::Mount { modlist } => {
+            let modlist_obj = Modlist {
+                install: Arc::clone(&arc_skyrim_install),
+                identifier: modlist,
+            };
 
-    let mods = modlist.read_mods()?;
-    for m in &mods {
-        m.verify_exist()?;
-    }
-    println!("The following mods are active:");
-    for m in &mods {
-        println!("\t{}", m.identifier.blue());
-        for p in m.get_plugins()? {
-            println!("\t * {}", p.yellow().italic());
+            println!("Mounting modlist {}...", &modlist_obj.colorized().bold().underline());
+
+            let mods = modlist_obj.read_mods()?;
+            for m in &mods {
+                m.verify_exist()?;
+            }
+            println!("The following mods are active:");
+            for m in &mods {
+                println!("\t{}", m.colorized());
+                for p in m.get_plugins()? {
+                    println!("\t * {}", p.yellow().italic());
+                }
+            }
+            println!();
+
+            let _plugins = plugins::write_plugins_file(&arc_skyrim_install, &mods)?;
+            //println!("The following plugins will be loaded:");
+            //for p in &plugins {
+            //    println!("\t{}", p.yellow());
+            //}
+            //println!();
+
+            filesystem::build_skyrim_folder(&arc_skyrim_install, &mods, &modlist_obj.mutable_folder())?;
+            println!("Modlist mounted! You can now start the game or tools.");
+            println!("After you're done, press CTRL+C to unmount.");
+            stdout().flush()?;
+
+
+            let (tx, rx) = channel();
+            ctrlc::set_handler(move || tx.send(()).unwrap())?;
+            rx.recv()?; // blocks here until Ctrl+C
+            println!();
+            println!("Modlist unmounted.");
+            println!("Runtime changes are saved in {}.", &modlist_obj.mutable_folder().colorized());
+            println!("If you want to make them permanent, copy them over to the staged mod folder they should belong to.");
+            println!("{}", "Watch the skies, traveller!".magenta().dimmed());
+            filesystem::unmount(&arc_skyrim_install);
+            Ok(())
+        }
+        Operation::Install { archive } => {
+            anyhow::bail!("Not yet implemented.");
         }
     }
-    println!();
-
-    let _plugins = plugins::write_plugins_file(&arc_skyrim_install, &mods)?;
-    //println!("The following plugins will be loaded:");
-    //for p in &plugins {
-    //    println!("\t{}", p.yellow());
-    //}
-    //println!();
-
-    filesystem::build_skyrim_folder(&arc_skyrim_install, &mods, &modlist.mutable_folder())?;
-    println!("Modlist mounted! You can now start the game or tools.");
-    println!("After you're done, press CTRL+C to unmount.");
-    stdout().flush()?;
 
 
-    let (tx, rx) = channel();
-    ctrlc::set_handler(move || tx.send(()).unwrap())?;
-    rx.recv()?; // blocks here until Ctrl+C
-    println!();
-    println!("Modlist unmounted.");
-    println!("Runtime changes are saved in {}.", &modlist.mutable_folder().to_str().unwrap().green());
-    println!("If you want to make them permanent, copy them over to the staged mod folder they should belong to.");
-    println!("{}", "Watch the skies, traveller!".magenta().dimmed());
-    filesystem::unmount(&arc_skyrim_install);
-    Ok(())
 }
 
 fn find_skyrim_install() -> anyhow::Result<SkyrimInstall> {

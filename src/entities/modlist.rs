@@ -3,6 +3,8 @@ use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::sync::Arc;
+use colored::Colorize;
+use crate::common::ConsoleDisplay;
 use crate::entities::{SkyrimInstall, StagedMod};
 
 pub struct Modlist {
@@ -15,7 +17,9 @@ pub struct Modlist {
 impl Modlist {
 
     pub fn name(&self) -> String {
-        let file = fs::File::open(self.get_modlist_file()).unwrap();
+        let file = fs::File::open(self.get_modlist_file()).expect(
+            format!("Modlist {} could not be found. It should be the file {}.", self.identifier.red(), self.get_modlist_file().colorized()).as_str()
+        );
         let reader = BufReader::new(file);
         for line_result in reader.lines() {
             let line = line_result.unwrap();
