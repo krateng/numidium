@@ -297,7 +297,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "numidium_rs"
+name = "numidium"
 version = "0.1.0"
 dependencies = [
  "anyhow",
