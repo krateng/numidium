@@ -1,9 +1,9 @@
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use crate::entities::{SkyrimInstall, StagedMod, Modlist};
+use crate::entities::{Install, StagedMod, Modlist};
 
-pub fn write_plugins_file(skyrim_install: &SkyrimInstall, mods: &Vec<StagedMod>) -> anyhow::Result<Vec<String>> {
+pub fn write_plugins_file(skyrim_install: &Install, mods: &Vec<StagedMod>) -> anyhow::Result<Vec<String>> {
     let mut ordered_plugins: Vec<String> = vec![];
 
     for stg_mod in mods {

@@ -1,21 +1,23 @@
 use std::fs;
 use std::path::PathBuf;
+use crate::entities::Game;
 
-pub struct SkyrimInstall {
-    pub skyrim_folder: PathBuf,
+pub struct Install {
+    pub game: Game,
+    pub install_folder: PathBuf,
     pub plugins_file: PathBuf,
 }
 
 
-impl SkyrimInstall {
+impl Install {
     pub fn data_folder(&self) -> PathBuf {
-        let fol = self.skyrim_folder.join("Data");
+        let fol = self.install_folder.join("Data");
         fs::create_dir_all(&fol).unwrap();
         fol
     }
 
     pub fn numidium_folder(&self) -> PathBuf {
-        let fol = self.skyrim_folder.join("Numidium");
+        let fol = self.install_folder.join("Numidium");
         fs::create_dir_all(&fol).unwrap();
         fol
     }

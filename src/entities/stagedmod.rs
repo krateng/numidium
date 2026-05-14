@@ -3,13 +3,13 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 use walkdir::WalkDir;
-use crate::entities::SkyrimInstall;
+use crate::entities::Install;
 
 static PLUGIN_EXTENSIONS: [&str; 3] = ["esp", "esm", "esl"];
 
 
 pub struct StagedMod {
-    pub install: Arc<SkyrimInstall>,
+    pub install: Arc<Install>,
     pub identifier: String,
 }
 

@@ -2,11 +2,11 @@ use std::error::Error;
 use libmount::Overlay;
 use std::path::{Path, PathBuf};
 use anyhow::anyhow;
-use crate::entities::{SkyrimInstall, StagedMod, Modlist};
+use crate::entities::{Install, StagedMod, Modlist};
 
 
 pub fn build_skyrim_folder(
-    skyrim_install: &SkyrimInstall,
+    skyrim_install: &Install,
     mods: &Vec<StagedMod>,
     changes_dir: &PathBuf
 ) -> anyhow::Result<()> {
@@ -27,7 +27,7 @@ pub fn build_skyrim_folder(
     Ok(())
 }
 
-pub fn unmount(skyrim_install: &SkyrimInstall) {
+pub fn unmount(skyrim_install: &Install) {
     let data_folder: PathBuf = skyrim_install.data_folder();
     std::process::Command::new("umount")
         .arg(&data_folder)

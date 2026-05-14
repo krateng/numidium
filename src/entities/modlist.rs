@@ -5,10 +5,10 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use colored::Colorize;
 use crate::common::ConsoleDisplay;
-use crate::entities::{SkyrimInstall, StagedMod};
+use crate::entities::{Install, StagedMod};
 
 pub struct Modlist {
-    pub install: Arc<SkyrimInstall>,
+    pub install: Arc<Install>,
     pub identifier: String,
     //pub name: String,
 }
