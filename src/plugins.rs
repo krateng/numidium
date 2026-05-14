@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use crate::entities::{Install, StagedMod, Modlist};
 
-pub fn write_plugins_file(skyrim_install: &Install, mods: &Vec<StagedMod>) -> anyhow::Result<Vec<String>> {
+pub fn write_plugins_file(install: &Install, mods: &Vec<StagedMod>) -> anyhow::Result<Vec<String>> {
     let mut ordered_plugins: Vec<String> = vec![];
 
     for stg_mod in mods {
@@ -13,7 +13,7 @@ pub fn write_plugins_file(skyrim_install: &Install, mods: &Vec<StagedMod>) -> an
         }
     }
 
-    let file = File::create(&skyrim_install.plugins_file)?;
+    let file = File::create(&install.plugins_file)?;
     let mut writer = BufWriter::new(file);
 
     writeln!(writer, "# This file was written my Numidium")?;

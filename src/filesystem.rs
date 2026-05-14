@@ -5,8 +5,8 @@ use anyhow::anyhow;
 use crate::entities::{Install, StagedMod, Modlist};
 
 
-pub fn build_skyrim_folder(
-    skyrim_install: &Install,
+pub fn build_game_folder(
+    install: &Install,
     mods: &Vec<StagedMod>,
     changes_dir: &PathBuf
 ) -> anyhow::Result<()> {
@@ -19,16 +19,16 @@ pub fn build_skyrim_folder(
     }
 
     build_folder(
-        &skyrim_install.data_folder(),
+        &install.data_folder(),
         mod_folders_to_stage,
         changes_dir,
-        &skyrim_install.working_folder()
+        &install.working_folder()
     )?;
     Ok(())
 }
 
-pub fn unmount(skyrim_install: &Install) {
-    let data_folder: PathBuf = skyrim_install.data_folder();
+pub fn unmount(install: &Install) {
+    let data_folder: PathBuf = install.data_folder();
     std::process::Command::new("umount")
         .arg(&data_folder)
         .status()
@@ -58,7 +58,7 @@ fn build_folder(
         write_folder,
         // workdir: for the fs admin
         working_folder,
-        // target: skyrim directory again to shadow
+        // target: base game directory again to shadow
         base_folder
     );
     Ok(overlayfs.mount().map_err(|e| anyhow!("{:?}", e))?)

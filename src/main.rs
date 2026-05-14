@@ -92,7 +92,7 @@ fn run() -> anyhow::Result<()> {
             //}
             //println!();
 
-            filesystem::build_skyrim_folder(&arc_game_install, &mods, &modlist_obj.mutable_folder())?;
+            filesystem::build_game_folder(&arc_game_install, &mods, &modlist_obj.mutable_folder())?;
             println!("Modlist mounted! You can now start the game or tools.");
             println!("After you're done, press CTRL+C to unmount.");
             stdout().flush()?;
