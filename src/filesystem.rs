@@ -1,14 +1,15 @@
 use std::error::Error;
-use vfs::{OverlayFS, PhysicalFS, VfsPath};
 use libmount::Overlay;
 use std::path::{Path, PathBuf};
-use crate::structs::{SkyrimInstall, StagedMod};
+use anyhow::anyhow;
+use crate::entities::{SkyrimInstall, StagedMod, Modlist};
 
 
 pub fn build_skyrim_folder(
     skyrim_install: &SkyrimInstall,
     mods: &Vec<StagedMod>,
-) -> Result<(), Box<dyn Error>> {
+    changes_dir: &PathBuf
+) -> anyhow::Result<()> {
 
     let mut mod_folders_to_stage: Vec<PathBuf> = vec![];
     for stg_mod in mods {
@@ -18,11 +19,11 @@ pub fn build_skyrim_folder(
     }
 
     build_folder(
-        skyrim_install.data_folder(),
+        &skyrim_install.data_folder(),
         mod_folders_to_stage,
-        skyrim_install.tmp_folder(),
-        skyrim_install.working_folder()
-    );
+        changes_dir,
+        &skyrim_install.working_folder()
+    )?;
     Ok(())
 }
 
@@ -35,11 +36,11 @@ pub fn unmount(skyrim_install: &SkyrimInstall) {
 }
 
 fn build_folder(
-    base_folder: PathBuf,
+    base_folder: &PathBuf,
     mod_folders: Vec<PathBuf>,
-    write_folder: PathBuf,
-    working_folder: PathBuf
-) {
+    write_folder: &PathBuf,
+    working_folder: &PathBuf
+) -> anyhow::Result<()> {
     let mut layers_sorted: Vec<PathBuf> = vec![];
 
     for folder in mod_folders.into_iter().rev() {
@@ -60,7 +61,7 @@ fn build_folder(
         // target: skyrim directory again to shadow
         base_folder
     );
-    overlayfs.mount().expect("Filesystem could not be mounted");
+    Ok(overlayfs.mount().map_err(|e| anyhow!("{:?}", e))?)
 
 
 }

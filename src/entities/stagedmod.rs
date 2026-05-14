@@ -1,61 +1,33 @@
 use std::error::Error;
 use std::fs;
-use walkdir::WalkDir;
 use std::path::PathBuf;
 use std::sync::Arc;
+use walkdir::WalkDir;
+use crate::entities::SkyrimInstall;
 
-pub struct SkyrimInstall {
-    pub skyrim_folder: PathBuf,
-    pub plugins_file: PathBuf,
-}
+static PLUGIN_EXTENSIONS: [&str; 3] = ["esp", "esm", "esl"];
+
 
 pub struct StagedMod {
     pub install: Arc<SkyrimInstall>,
     pub identifier: String,
 }
 
-
-impl SkyrimInstall {
-    pub fn data_folder(&self) -> PathBuf {
-        self.skyrim_folder.join("Data")
-    }
-
-    pub fn numidium_folder(&self) -> PathBuf {
-        self.skyrim_folder.join("Numidium")
-    }
-
-    pub fn modlist_folder(&self) -> PathBuf {
-        self.numidium_folder().join("lists")
-    }
-
-    pub fn staging_folder(&self) -> PathBuf {
-        self.numidium_folder().join("staging")
-    }
-
-    pub fn working_folder(&self) -> PathBuf {
-        self.numidium_folder().join(".working")
-    }
-
-    // TODO make this modlist specific
-    pub fn tmp_folder(&self) -> PathBuf {
-        self.numidium_folder().join(".tmp")
-    }
-}
-
-static PLUGIN_EXTENSIONS: [&str; 3] = ["esp", "esm", "esl"];
 impl StagedMod {
     pub fn mod_folder(&self) -> PathBuf {
-        self.install.staging_folder().join(&self.identifier)
+        let fol = self.install.staging_folder().join(&self.identifier);
+        fs::create_dir_all(&fol).unwrap();
+        fol
     }
 
-    pub fn verify_exist(&self) -> Result<(), std::io::Error> {
+    pub fn verify_exist(&self) -> anyhow::Result<()> {
         if !self.mod_folder().exists() {
             Err(std::io::Error::new(std::io::ErrorKind::NotFound, format!("Mod {} not found in staging", self.identifier)))?
         }
         Ok(())
     }
 
-    pub fn get_plugins(&self) -> Result<Vec<String>, Box<dyn Error>> {
+    pub fn get_plugins(&self) -> anyhow::Result<Vec<String>> {
 
         let names: Vec<String> = fs::read_dir(&self.mod_folder())?
             .filter_map(|e| e.ok())
@@ -67,7 +39,7 @@ impl StagedMod {
         Ok(names)
     }
 
-    pub fn fix_case(&self) -> Result<(), Box<dyn Error>> {
+    pub fn fix_case(&self) -> anyhow::Result<()> {
         let mut entries: Vec<_> = WalkDir::new(self.mod_folder())
             .min_depth(1)
             .into_iter()
