@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::os::unix::fs::PermissionsExt;
 use libmount::Overlay;
 use std::path::{Path, PathBuf};
 use anyhow::anyhow;
@@ -61,7 +62,9 @@ fn build_folder(
         // target: base game directory again to shadow
         base_folder
     );
-    Ok(overlayfs.mount().map_err(|e| anyhow!("{:?}", e))?)
+    overlayfs.mount().map_err(|e| anyhow!("{:?}", e))?;
+    base_folder.metadata()?.permissions().set_mode(0o777);
+    Ok(())
 
 
 }
