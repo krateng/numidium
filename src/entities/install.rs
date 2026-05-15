@@ -11,7 +11,7 @@ pub struct Install {
 
 impl Install {
     pub fn data_folder(&self) -> PathBuf {
-        let fol = self.install_folder.join("Data");
+        let fol = self.install_folder.join(self.game.datafolder);
         fs::create_dir_all(&fol).unwrap();
         fol
     }

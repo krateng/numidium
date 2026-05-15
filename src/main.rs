@@ -14,9 +14,13 @@ mod entities;
 mod common;
 
 
-static GAMES: [Game; 2] = [
-    Game { name: "Skyrim SE", executable: "SkyrimSE.exe", steam_id: 489830, plugin_file_path: "pfx/drive_c/users/steamuser/AppData/Local/Skyrim Special Edition/Plugins.txt" },
-    Game { name: "Skyrim VR", executable: "SkyrimVR.exe", steam_id: 611670, plugin_file_path: "tbd" },
+static GAMES: [Game; 6] = [
+    Game { name: "Skyrim SE", executable: "SkyrimSE.exe", steam_id: 489830, plugin_file_path: "pfx/drive_c/users/steamuser/AppData/Local/Skyrim Special Edition/Plugins.txt", datafolder: "Data" },
+    Game { name: "Skyrim VR", executable: "SkyrimVR.exe", steam_id: 611670, plugin_file_path: "pfx/drive_c/users/steamuser/AppData/Local/Skyrim VR/plugins.txt", datafolder: "Data" },
+    Game { name: "Skyrim LE", executable: "TBD", steam_id: 72850, plugin_file_path: "tbd", datafolder: "Data" },
+    Game { name: "Oblivion Remastered", executable: "TBD", steam_id: 2623190, plugin_file_path: "tbd", datafolder: "Data" },
+    Game { name: "Oblivion", executable: "TBD", steam_id: 22330, plugin_file_path: "pfx/drive_c/users/steamuser/My Documents/My Games/Oblivion/plugins.txt", datafolder: "Data" },
+    Game { name: "Morrowind", executable: "Morrowind.exe", steam_id: 22320, plugin_file_path: "tbd", datafolder: "Data Files" }
 ];
 
 #[derive(Parser)]
@@ -133,13 +137,6 @@ fn determine_install() -> anyhow::Result<Install> {
             "--install".dimmed().italic()
         );
     }
-    if !game_folder.join("Data").exists() {
-        anyhow::bail!(
-            "No valid game installation could be found at {}. Put the Numidium executable in your game folder, or use {} to provide a custom install location.",
-            game_folder.colorized(),
-            "--install".dimmed().italic()
-        )
-    }
 
     let Some(detected_game) = GAMES.iter().find(|game| game_folder.join(game.executable).exists()) else {
         anyhow::bail!(
@@ -148,6 +145,14 @@ fn determine_install() -> anyhow::Result<Install> {
             "--install".dimmed().italic()
         )
     };
+
+    if !game_folder.join(detected_game.datafolder).exists() {
+        anyhow::bail!(
+            "Game installation at {} has no {} folder. Did you run the game once?",
+            game_folder.colorized(),
+            detected_game.datafolder.green()
+        )
+    }
 
     println!("Using {} install at {}", &detected_game.name.bold().underline(), game_folder.colorized());
 
