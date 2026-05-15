@@ -1,0 +1,22 @@
+name: GitHub Release
+
+on:
+  push:
+    tags: ['v*']
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - run: cargo build --release --bin numidium
+    - uses: softprops/action-gh-release@v3
+      with:
+        working_directory: target/release
+        files: numidium
